@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Oslo Båtpleie og Krympeplast</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #0d0d0d; --gray-800: #222; --gray-700: #333;
+      --gray-600: #444; --gray-500: #666; --gray-400: #999;
+      --gray-300: #ccc; --gray-200: #e0e0e0; --gray-100: #f0f0f0;
+      --gray-50: #f8f8f8; --white: #fff;
+      --font: 'Inter', -apple-system, sans-serif;
+      --radius: 7px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); color: var(--gray-800); background: var(--gray-50); font-size: 14px; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: var(--font); cursor: pointer; }
+
+    /* ─── LOGIN ─── */
+    #login-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--white);
+    }
+    .login-card { width: 340px; padding: 40px; border: 1px solid var(--gray-200); border-radius: 12px; }
+    .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+    .login-logo img { height: 36px; width: auto; }
+    .login-logo-text { font-size: 0.9rem; font-weight: 700; line-height: 1.3; }
+    .login-logo-text span { display: block; font-weight: 400; font-size: 0.72rem; color: var(--gray-500); }
+    .login-card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .login-card p { font-size: 0.82rem; color: var(--gray-500); margin-bottom: 24px; }
+    .login-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .login-field label { font-size: 0.67rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gray-500); }
+    .login-field input { padding: 10px 13px; border: 1px solid var(--gray-200); border-radius: var(--radius); font-size: 0.9rem; font-family: var(--font); outline: none; transition: border-color 0.15s; }
+    .login-field input:focus { border-color: var(--black); }
+    .login-err { font-size: 0.78rem; color: #c0392b; margin-bottom: 10px; display: none; }
+    .btn-login { width: 100%; padding: 11px; background: var(--black); color: var(--white); border: none; border-radius: var(--radius); font-size: 0.875rem; font-weight: 600; transition: background 0.15s; }
+    .btn-login:hover { background: var(--gray-800); }
+
+    /* ─── MAIN APP ─── */
+    #app { display: none; min-height: 100vh; }
+
+    /* ─── TOP NAV ─── */
+    .topnav {
+      background: var(--white); border-bottom: 1px solid var(--gray-200);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topnav-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 28px;
+      height: 56px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .topnav-logo { display: flex; align-items: center; gap: 10px; }
+    .topnav-logo img { height: 32px; }
+    .topnav-logo .brand { font-size: 0.85rem; font-weight: 700; }
+    .topnav-logo .brand span { font-size: 0.67rem; font-weight: 400; color: var(--gray-500); display: block; }
+    .topnav-badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; background: var(--gray-100); color: var(--gray-500); padding: 3px 8px; border-radius: 4px; margin-left: 4px; }
+    .topnav-right { display: flex; align-items: center; gap: 12px; }
+    .btn-logout { font-size: 0.78rem; color: var(--gray-500); background: none; border: 1px solid var(--gray-200); padding: 6px 13px; border-radius: var(--radius); transition: all 0.15s; }
+    .btn-logout:hover { border-color: var(--gray-400); color: var(--black); }
+
+    /* ─── TAB NAV ─── */
+    .tabnav {
+      background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 28px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .tabnav { max-width: 100%; }
+    .tabnav-inner { max-width: 1200px; margin: 0 auto; padding: 0 28px; display: flex; gap: 0; }
+    .tab-btn {
+      padding: 12px 18px; font-size: 0.83rem; font-weight: 500;
+      color: var(--gray-500); background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--black); }
+    .tab-btn.active { color: var(--black); border-bottom-color: var(--black); font-weight: 600; }
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--black); color: var(--white);
+      font-size: 0.6rem; font-weight: 700; margin-left: 6px;
+    }
+
+    /* ─── PAGE CONTENT ─── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 28px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.015em; }
+    .page-header p { font-size: 0.82rem; color: var(--gray-500); margin-top: 2px; }
+
+    /* ─── BUTTONS ─── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); font-size: 0.82rem; font-weight: 600; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--black); color: var(--white); }
+    .btn-primary:hover { background: var(--gray-800); }
+    .btn-secondary { background: var(--white); color: var(--gray-700); border: 1px solid var(--gray-200); }
+    .btn-secondary:hover { border-color: var(--gray-400); color: var(--black); }
+    .btn-danger { background: #fef2f2; color: #c0392b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+
+    /* ─── STATUS BADGES ─── */
+    .badge { display: inline-block; font-size: 0.67rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+    .badge-new { background: #e0f2fe; color: #0369a1; }
+    .badge-active { background: #fef9c3; color: #854d0e; }
+    .badge-sent { background: #e7f7ee; color: #166534; }
+    .badge-done { background: var(--gray-100); color: var(--gray-500); }
+
+    /* ─── TABLE ─── */
+    .table-wrap { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--gray-50); }
+    th { padding: 10px 16px; text-align: left; font-size: 0.67rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gray-400); border-bottom: 1px solid var(--gray-200); }
+    td { padding: 12px 16px; font-size: 0.83rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray-50); }
+    .td-actions { display: flex; gap: 6px; }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--gray-400); }
+    .empty-state p { font-size: 0.9rem; margin-bottom: 16px; }
+
+    /* ─── MODAL ─── */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
+    .modal-bg.open { display: flex; }
+    .modal { background: var(--white); border-radius: 12px; width: 100%; max-width: 680px; overflow: hidden; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 1rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.2rem; color: var(--gray-400); line-height: 1; padding: 4px; }
+    .modal-close:hover { color: var(--black); }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-200); display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ─── FORM ELEMENTS ─── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-grid .span2 { grid-column: 1 / -1; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fg label { font-size: 0.67rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gray-500); }
+    .fg input, .fg textarea, .fg select {
+      padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius);
+      font-size: 0.875rem; font-family: var(--font); color: var(--black);
+      background: var(--white); outline: none; transition: border-color 0.15s;
+    }
+    .fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--black); }
+    .fg textarea { min-height: 80px; resize: vertical; }
+    .form-section { margin-bottom: 22px; }
+    .form-section-label { font-size: 0.67rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); background: var(--gray-50); padding: 7px 0; margin-bottom: 12px; }
+
+    /* ─── TILBUD BUILDER ─── */
+    .service-pick { margin-bottom: 16px; }
+    .sp-group-name { font-size: 0.78rem; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .sp-opt { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+    .sp-opt input { width: 14px; height: 14px; accent-color: var(--black); flex-shrink: 0; }
+    .sp-opt-row { display: flex; align-items: center; gap: 6px; }
+    .sp-name { font-size: 0.83rem; color: var(--gray-700); }
+    .sp-price-tag { font-size: 0.7rem; font-weight: 600; background: var(--gray-100); padding: 1px 7px; border-radius: 4px; color: var(--black); }
+
+    .tilbud-total-bar { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+    .ttb-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-500); }
+    .ttb-val { font-size: 1.4rem; font-weight: 800; color: var(--black); }
+
+    /* ─── PRINT VIEW ─── */
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: fixed; inset: 0; padding: 32px 40px; background: white; }
+    }
+    #print-area { display: none; }
+
+    /* ─── SETTINGS ─── */
+    .settings-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+    .settings-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+    .settings-card > p { font-size: 0.8rem; color: var(--gray-500); margin-bottom: 18px; }
+    .price-table { width: 100%; border-collapse: collapse; }
+    .price-table th { text-align: left; font-size: 0.67rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray-400); padding: 6px 0; border-bottom: 1px solid var(--gray-200); }
+    .price-table td { padding: 8px 0; border-bottom: 1px solid var(--gray-100); font-size: 0.83rem; }
+    .price-table td:last-child { text-align: right; }
+    .price-input { width: 90px; padding: 5px 8px; border: 1px solid var(--gray-200); border-radius: 5px; font-size: 0.83rem; font-family: var(--font); text-align: right; outline: none; }
+    .price-input:focus { border-color: var(--black); }
+    .netlify-help { font-size: 0.78rem; color: var(--gray-500); background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 12px 14px; margin-top: 14px; line-height: 1.6; }
+    .netlify-help a { color: var(--black); text-decoration: underline; }
+
+    /* ─── MISC ─── */
+    .divider { border: none; border-top: 1px solid var(--gray-200); margin: 20px 0; }
+    .text-muted { color: var(--gray-400); }
+    .meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; }
+    .meta-item { font-size: 0.8rem; }
+    .meta-item strong { color: var(--black); font-weight: 600; }
+    .meta-item span { color: var(--gray-500); }
+  </style>
+</head>
+<body>
+
+<!-- ── PRINT AREA ── -->
+<div id="print-area"></div>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="../logo.svg" alt="OBK" onerror="this.style.display='none'">
+      <div class="login-logo-text">Oslo Båtpleie<span>og Krympeplast AS</span></div>
+    </div>
+    <h2>Admin-portal</h2>
+    <p>Logg inn for å administrere forespørsler og tilbud.</p>
+    <form id="login-form">
+      <div class="login-field">
+        <label for="pwd">Passord</label>
+        <input type="password" id="pwd" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <div class="login-err" id="login-err">Feil passord. Prøv igjen.</div>
+      <button type="submit" class="btn-login">Logg inn</button>
+    </form>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+
+  <!-- Top nav -->
+  <div class="topnav">
+    <div class="topnav-inner">
+      <div class="topnav-logo">
+        <img src="../logo.svg" alt="OBK" onerror="this.style.display='none'">
+        <div class="brand">Oslo Båtpleie <span>og Krympeplast AS</span></div>
+        <span class="topnav-badge">Admin</span>
+      </div>
+      <div class="topnav-right">
+        <button class="btn-logout" onclick="logout()">Logg ut</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab nav -->
+  <div style="background:var(--white);border-bottom:1px solid var(--gray-200);">
+    <div style="max-width:1200px;margin:0 auto;padding:0 28px;display:flex;">
+      <button class="tab-btn active" onclick="showTab('foresporsel')" id="tab-btn-foresporsel">
+        Forespørsler<span class="tab-badge" id="badge-foresporsel" style="display:none">0</span>
+      </button>
+      <button class="tab-btn" onclick="showTab('tilbud')" id="tab-btn-tilbud">Tilbud</button>
+      <button class="tab-btn" onclick="showTab('innstillinger')" id="tab-btn-innstillinger">Innstillinger</button>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- ── TAB: FORESPØRSLER ── -->
+    <div class="tab-content active" id="tab-foresporsel">
+      <div class="page-header">
+        <div>
+          <h1>Forespørsler</h1>
+          <p>Innkommende henvendelser fra nettsiden</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-secondary" onclick="syncNetlify()">Hent fra Netlify</button>
+          <button class="btn btn-primary" onclick="openNyForesporsel()">+ Ny forespørsel</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Dato</th><th>Navn</th><th>Båt</th><th>Tjenester</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="foresporsel-tbody">
+            <tr><td colspan="6"><div class="empty-state"><p>Ingen forespørsler ennå</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: TILBUD ── -->
+    <div class="tab-content" id="tab-tilbud">
+      <div class="page-header">
+        <div><h1>Tilbud</h1><p>Opprettede tilbud til kunder</p></div>
+        <button class="btn btn-primary" onclick="openNyttTilbud(null)">+ Nytt tilbud</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Dato</th><th>Kunde</th><th>Båt</th><th>Total</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="tilbud-tbody">
+            <tr><td colspan="6"><div class="empty-state"><p>Ingen tilbud ennå</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: INNSTILLINGER ── -->
+    <div class="tab-content" id="tab-innstillinger">
+      <div class="page-header"><div><h1>Innstillinger</h1></div></div>
+
+      <!-- Change password -->
+      <div class="settings-card">
+        <h3>Endre passord</h3>
+        <p>Passordet brukes til å logge inn på denne admin-siden.</p>
+        <div class="form-grid" style="max-width:420px;">
+          <div class="fg span2">
+            <label>Nytt passord</label>
+            <input type="password" id="new-pass1" placeholder="Nytt passord">
+          </div>
+          <div class="fg span2">
+            <label>Bekreft passord</label>
+            <input type="password" id="new-pass2" placeholder="Gjenta passord">
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-primary" onclick="changePassword()">Lagre passord</button>
+          <span id="pass-msg" style="font-size:0.78rem;margin-left:10px;color:var(--gray-500);"></span>
+        </div>
+      </div>
+
+      <!-- Netlify sync -->
+      <div class="settings-card">
+        <h3>Netlify-synkronisering</h3>
+        <p>Hent forespørsler direkte fra Netlify Forms. Krever en personlig tilgangstoken.</p>
+        <div class="form-grid" style="max-width:560px;">
+          <div class="fg span2">
+            <label>Netlify Personal Access Token</label>
+            <input type="password" id="netlify-token" placeholder="••••••••••••••••••••••">
+          </div>
+          <div class="fg span2">
+            <label>Site ID (fra Netlify → Site settings)</label>
+            <input type="text" id="netlify-siteid" placeholder="f.eks. abc12345-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-primary" onclick="saveNetlifySettings()">Lagre</button>
+          <span id="netlify-msg" style="font-size:0.78rem;margin-left:10px;color:var(--gray-500);"></span>
+        </div>
+        <div class="netlify-help">
+          <strong>Slik finner du token og Site ID:</strong><br>
+          1. Gå til <a href="https://app.netlify.com/user/applications/personal" target="_blank">app.netlify.com → User Settings → Personal access tokens</a><br>
+          2. Klikk "New access token", gi den et navn og kopier tokenet hit.<br>
+          3. Site ID finner du under <em>Site settings → General → Site information</em> i Netlify.
+        </div>
+      </div>
+
+      <!-- Service prices -->
+      <div class="settings-card">
+        <h3>Tjeneste-priser</h3>
+        <p>Prisene brukes i tilbudskalkulatoren. Endres her og lagres lokalt i nettleseren.</p>
+        <table class="price-table" id="price-settings-table"></table>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="savePrices()">Lagre priser</button>
+          <span id="price-msg" style="font-size:0.78rem;margin-left:10px;color:var(--gray-500);"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── MODAL: NY FORESPØRSEL ── -->
+<div class="modal-bg" id="modal-foresporsel">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-f-title">Ny forespørsel</h2>
+      <button class="modal-close" onclick="closeModal('modal-foresporsel')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-label">Kundeinformasjon</div>
+        <div class="form-grid">
+          <div class="fg"><label>Navn</label><input type="text" id="f-navn"></div>
+          <div class="fg"><label>Telefon</label><input type="tel" id="f-tlf"></div>
+          <div class="fg span2"><label>E-post</label><input type="email" id="f-epost"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">Båtinformasjon</div>
+        <div class="form-grid cols3">
+          <div class="fg"><label>Merke</label><input type="text" id="f-merke"></div>
+          <div class="fg"><label>Modell</label><input type="text" id="f-modell"></div>
+          <div class="fg"><label>Lengde (fot)</label><input type="number" id="f-lengde" min="1" max="120"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">Melding</div>
+        <div class="fg"><textarea id="f-melding" style="min-height:90px"></textarea></div>
+      </div>
+      <div class="form-section" style="margin-bottom:0">
+        <div class="form-section-label">Status</div>
+        <div class="fg" style="max-width:200px">
+          <select id="f-status">
+            <option value="ny">Ny</option>
+            <option value="aktiv">I gang</option>
+            <option value="sendt">Tilbud sendt</option>
+            <option value="fullfort">Fullfort</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-foresporsel')">Avbryt</button>
+      <button class="btn btn-primary" onclick="saveForesporsel()">Lagre</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: VIS FORESPØRSEL ── -->
+<div class="modal-bg" id="modal-vis-f">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Forespørsel</h2>
+      <button class="modal-close" onclick="closeModal('modal-vis-f')">×</button>
+    </div>
+    <div class="modal-body" id="modal-vis-f-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-vis-f')">Lukk</button>
+      <button class="btn btn-primary" id="modal-vis-f-lag-tilbud">Lag tilbud</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: TILBUD BUILDER ── -->
+<div class="modal-bg" id="modal-tilbud">
+  <div class="modal" style="max-width:780px;">
+    <div class="modal-header">
+      <h2 id="modal-t-title">Nytt tilbud</h2>
+      <button class="modal-close" onclick="closeModal('modal-tilbud')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-label">Kundeinformasjon</div>
+        <div class="form-grid">
+          <div class="fg"><label>Navn</label><input type="text" id="t-navn"></div>
+          <div class="fg"><label>Telefon</label><input type="tel" id="t-tlf"></div>
+          <div class="fg span2"><label>E-post</label><input type="email" id="t-epost"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">Båtinformasjon</div>
+        <div class="form-grid cols3">
+          <div class="fg"><label>Merke</label><input type="text" id="t-merke"></div>
+          <div class="fg"><label>Modell</label><input type="text" id="t-modell"></div>
+          <div class="fg"><label>Lengde (fot)</label><input type="number" id="t-lengde" min="1" max="120"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">Tjenester</div>
+        <div id="service-picker"></div>
+        <div class="tilbud-total-bar">
+          <div>
+            <div class="ttb-label">Estimert total</div>
+            <div style="font-size:0.7rem;color:var(--gray-400);margin-top:2px;" id="t-total-note"></div>
+          </div>
+          <div class="ttb-val" id="t-total-display">—</div>
+        </div>
+      </div>
+      <div class="form-section" style="margin-bottom:0">
+        <div class="form-section-label">Tillegg</div>
+        <div class="form-grid">
+          <div class="fg"><label>Gyldig til</label><input type="date" id="t-gyldig"></div>
+          <div class="fg"><label>Status</label>
+            <select id="t-status">
+              <option value="utkast">Utkast</option>
+              <option value="sendt">Sendt</option>
+              <option value="akseptert">Akseptert</option>
+              <option value="avslatt">Avslatt</option>
+            </select>
+          </div>
+          <div class="fg span2"><label>Notat (intern)</label><textarea id="t-notat"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-tilbud')">Avbryt</button>
+      <button class="btn btn-secondary" onclick="printTilbud()">Skriv ut / PDF</button>
+      <button class="btn btn-primary" onclick="saveTilbud()">Lagre tilbud</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA & CONFIG
+═══════════════════════════════════════════ */
+const DEFAULT_PASS = 'obpk2025';
+
+const DEFAULT_SERVICES = [
+  { id:'pol_under_1steg',   name:'Polering under – 1-steg',        price:75,   unit:'fot', group:'pol_under' },
+  { id:'pol_under_2steg',   name:'Polering under – 2-steg',        price:115,  unit:'fot', group:'pol_under' },
+  { id:'pol_under_premium', name:'Polering under – Premium voks',  price:55,   unit:'fot', group:'pol_under' },
+  { id:'pol_over_1steg',    name:'Polering over – 1-steg',         price:95,   unit:'fot', group:'pol_over'  },
+  { id:'pol_over_2steg',    name:'Polering over – 2-steg',         price:145,  unit:'fot', group:'pol_over'  },
+  { id:'pol_over_premium',  name:'Polering over – Premium voks',   price:55,   unit:'fot', group:'pol_over'  },
+  { id:'bunnstoff_skraping',name:'Høytrykk og lett skraping',      price:50,   unit:'fot', group:null },
+  { id:'bunnstoff_maling',  name:'Bunnstoff inkl. maling',         price:180,  unit:'fot', group:null },
+  { id:'vask_innvendig',    name:'Innvendig båtvask',               price:2900, unit:'fra', group:null },
+  { id:'vask_utvendig',     name:'Utvendig båtvask',                price:2900, unit:'fra', group:null },
+  { id:'vask_puter',        name:'Rens av puter',                   price:0,    unit:'poa', group:null },
+  { id:'vinter_krympeplast',name:'Krympeplast',                     price:210,  unit:'fot', group:null },
+  { id:'vinter_vask',       name:'Vask (vinter)',                   price:2500, unit:'fra', group:null },
+];
+
+function getServices() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('obpk_services'));
+    if (saved && saved.length) return saved;
+  } catch {}
+  return DEFAULT_SERVICES.map(s => ({...s}));
+}
+
+function get(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
+function set(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function fmt(n) { return n.toLocaleString('nb-NO') + ' kr'; }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(iso) { if (!iso) return ''; return new Date(iso).toLocaleDateString('nb-NO', {day:'2-digit',month:'2-digit',year:'numeric'}); }
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+function checkAuth() { return sessionStorage.getItem('obpk_auth') === '1'; }
+function logout() { sessionStorage.removeItem('obpk_auth'); location.reload(); }
+
+document.getElementById('login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const pwd = document.getElementById('pwd').value;
+  const stored = localStorage.getItem('obpk_pass') || DEFAULT_PASS;
+  if (pwd === stored) {
+    sessionStorage.setItem('obpk_auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+});
+
+function changePassword() {
+  const p1 = document.getElementById('new-pass1').value;
+  const p2 = document.getElementById('new-pass2').value;
+  const msg = document.getElementById('pass-msg');
+  if (!p1) { msg.textContent = 'Fyll inn nytt passord.'; msg.style.color = '#c0392b'; return; }
+  if (p1 !== p2) { msg.textContent = 'Passordene stemmer ikke.'; msg.style.color = '#c0392b'; return; }
+  localStorage.setItem('obpk_pass', p1);
+  msg.textContent = 'Passord endret.'; msg.style.color = 'var(--gray-500)';
+  document.getElementById('new-pass1').value = '';
+  document.getElementById('new-pass2').value = '';
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('tab-btn-' + name).classList.add('active');
+}
+
+/* ═══════════════════════════════════════════
+   FORESPØRSLER
+═══════════════════════════════════════════ */
+let editingFId = null;
+
+function renderForesporsel() {
+  const list = get('obpk_f');
+  const tbody = document.getElementById('foresporsel-tbody');
+  const newCount = list.filter(f => f.status === 'ny').length;
+  const badge = document.getElementById('badge-foresporsel');
+  badge.textContent = newCount;
+  badge.style.display = newCount > 0 ? 'inline-flex' : 'none';
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Ingen forespørsler ennå</p><button class="btn btn-primary" onclick="openNyForesporsel()">+ Legg til manuelt</button></div></td></tr>';
+    return;
+  }
+  const sorted = [...list].sort((a,b) => b.dato.localeCompare(a.dato));
+  tbody.innerHTML = sorted.map(f => `
+    <tr>
+      <td>${fmtDate(f.dato)}</td>
+      <td><strong>${f.navn || '—'}</strong><br><span class="text-muted" style="font-size:0.75rem">${f.epost || ''}</span></td>
+      <td style="font-size:0.8rem">${[f.merke, f.modell, f.lengde ? f.lengde+' fot':''].filter(Boolean).join(', ') || '—'}</td>
+      <td style="font-size:0.8rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.melding ? f.melding.slice(0,60) + (f.melding.length > 60 ? '…' : '') : '—'}</td>
+      <td>${statusBadge(f.status)}</td>
+      <td class="td-actions">
+        <button class="btn btn-secondary btn-sm" onclick="visForesporsel('${f.id}')">Vis</button>
+        <button class="btn btn-primary btn-sm" onclick="openNyttTilbud('${f.id}')">Lag tilbud</button>
+        <button class="btn btn-danger btn-sm" onclick="slettForesporsel('${f.id}')">Slett</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function statusBadge(s) {
+  const map = { ny:'badge-new', aktiv:'badge-active', sendt:'badge-sent', fullfort:'badge-done', akseptert:'badge-sent', avslatt:'badge-done', utkast:'badge-active' };
+  const lbl = { ny:'Ny', aktiv:'I gang', sendt:'Tilbud sendt', fullfort:'Fullfort', akseptert:'Akseptert', avslatt:'Avslatt', utkast:'Utkast' };
+  return `<span class="badge ${map[s]||'badge-new'}">${lbl[s]||s}</span>`;
+}
+
+function openNyForesporsel() {
+  editingFId = null;
+  document.getElementById('modal-f-title').textContent = 'Ny forespørsel';
+  ['navn','tlf','epost','merke','modell','lengde','melding'].forEach(k => {
+    const el = document.getElementById('f-'+k);
+    if (el) el.value = '';
+  });
+  document.getElementById('f-status').value = 'ny';
+  openModal('modal-foresporsel');
+}
+
+function visForesporsel(id) {
+  const f = get('obpk_f').find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('modal-vis-f-body').innerHTML = `
+    <div class="meta-row">
+      <div class="meta-item"><span>Dato</span><br><strong>${fmtDate(f.dato)}</strong></div>
+      <div class="meta-item"><span>Status</span><br>${statusBadge(f.status)}</div>
+    </div>
+    <hr class="divider">
+    <div class="form-section-label">Kunde</div>
+    <div class="meta-row">
+      <div class="meta-item"><span>Navn</span><br><strong>${f.navn||'—'}</strong></div>
+      <div class="meta-item"><span>Telefon</span><br><strong>${f.tlf||'—'}</strong></div>
+      <div class="meta-item"><span>E-post</span><br><strong>${f.epost||'—'}</strong></div>
+    </div>
+    <div class="form-section-label" style="margin-top:14px;">Båt</div>
+    <div class="meta-row">
+      <div class="meta-item"><span>Merke</span><br><strong>${f.merke||'—'}</strong></div>
+      <div class="meta-item"><span>Modell</span><br><strong>${f.modell||'—'}</strong></div>
+      <div class="meta-item"><span>Lengde</span><br><strong>${f.lengde ? f.lengde+' fot' : '—'}</strong></div>
+    </div>
+    ${f.melding ? `<div class="form-section-label" style="margin-top:14px;">Melding</div><p style="font-size:0.85rem;color:var(--gray-600);line-height:1.6;white-space:pre-wrap">${f.melding}</p>` : ''}
+  `;
+  document.getElementById('modal-vis-f-lag-tilbud').onclick = () => { closeModal('modal-vis-f'); openNyttTilbud(id); };
+  openModal('modal-vis-f');
+}
+
+function saveForesporsel() {
+  const foresporsel = {
+    id: editingFId || uid(),
+    dato: today(),
+    navn: document.getElementById('f-navn').value,
+    tlf: document.getElementById('f-tlf').value,
+    epost: document.getElementById('f-epost').value,
+    merke: document.getElementById('f-merke').value,
+    modell: document.getElementById('f-modell').value,
+    lengde: document.getElementById('f-lengde').value,
+    melding: document.getElementById('f-melding').value,
+    status: document.getElementById('f-status').value,
+  };
+  const list = get('obpk_f');
+  if (editingFId) {
+    const idx = list.findIndex(x => x.id === editingFId);
+    if (idx >= 0) list[idx] = foresporsel;
+  } else {
+    list.push(foresporsel);
+  }
+  set('obpk_f', list);
+  closeModal('modal-foresporsel');
+  renderForesporsel();
+}
+
+function slettForesporsel(id) {
+  if (!confirm('Slett denne forespørselen?')) return;
+  set('obpk_f', get('obpk_f').filter(x => x.id !== id));
+  renderForesporsel();
+}
+
+/* ═══════════════════════════════════════════
+   NETLIFY SYNC
+═══════════════════════════════════════════ */
+async function syncNetlify() {
+  const token  = localStorage.getItem('netlify_token');
+  const siteId = localStorage.getItem('netlify_siteid');
+  if (!token || !siteId) {
+    alert('Fyll inn Netlify-token og Site ID under Innstillinger først.');
+    showTab('innstillinger'); return;
+  }
+  try {
+    const r1 = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/forms`, {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const forms = await r1.json();
+    const f = forms.find(x => x.name === 'bestilling');
+    if (!f) { alert('Fant ikke skjema med navn "bestilling" på dette nettstedet.'); return; }
+
+    const r2 = await fetch(`https://api.netlify.com/api/v1/forms/${f.id}/submissions?per_page=50`, {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const submissions = await r2.json();
+    const existing = get('obpk_f');
+    const existingNetlifyIds = new Set(existing.filter(x => x.netlifyId).map(x => x.netlifyId));
+    let added = 0;
+
+    submissions.forEach(sub => {
+      if (existingNetlifyIds.has(sub.id)) return;
+      const d = sub.data || {};
+      existing.push({
+        id: uid(), netlifyId: sub.id,
+        dato: sub.created_at ? sub.created_at.slice(0,10) : today(),
+        navn: d.navn || '', tlf: d.telefon || '', epost: d.epost || '',
+        merke: '', modell: '', lengde: '',
+        melding: [d.batinfo ? 'Båt: '+d.batinfo : '', d.melding || ''].filter(Boolean).join('\n'),
+        status: 'ny'
+      });
+      added++;
+    });
+
+    set('obpk_f', existing);
+    renderForesporsel();
+    alert(added > 0 ? `Hentet ${added} nye forespørsler fra Netlify.` : 'Ingen nye forespørsler siden sist.');
+  } catch(err) {
+    alert('Klarte ikke hente fra Netlify: ' + err.message);
+  }
+}
+
+function saveNetlifySettings() {
+  localStorage.setItem('netlify_token', document.getElementById('netlify-token').value);
+  localStorage.setItem('netlify_siteid', document.getElementById('netlify-siteid').value);
+  const msg = document.getElementById('netlify-msg');
+  msg.textContent = 'Lagret.'; setTimeout(() => msg.textContent = '', 2500);
+}
+
+/* ═══════════════════════════════════════════
+   TILBUD
+═══════════════════════════════════════════ */
+let editingTId = null;
+
+function renderTilbud() {
+  const list = get('obpk_t');
+  const tbody = document.getElementById('tilbud-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Ingen tilbud ennå</p><button class="btn btn-primary" onclick="openNyttTilbud(null)">+ Nytt tilbud</button></div></td></tr>';
+    return;
+  }
+  const sorted = [...list].sort((a,b) => b.dato.localeCompare(a.dato));
+  tbody.innerHTML = sorted.map(t => `
+    <tr>
+      <td>${fmtDate(t.dato)}</td>
+      <td><strong>${t.navn||'—'}</strong></td>
+      <td style="font-size:0.8rem">${[t.merke, t.modell, t.lengde ? t.lengde+' fot':''].filter(Boolean).join(', ')||'—'}</td>
+      <td><strong>${t.totalDisplay||'—'}</strong></td>
+      <td>${statusBadge(t.status)}</td>
+      <td class="td-actions">
+        <button class="btn btn-secondary btn-sm" onclick="redigerTilbud('${t.id}')">Rediger</button>
+        <button class="btn btn-secondary btn-sm" onclick="printTilbudById('${t.id}')">PDF</button>
+        <button class="btn btn-danger btn-sm" onclick="slettTilbud('${t.id}')">Slett</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openNyttTilbud(fId) {
+  editingTId = null;
+  document.getElementById('modal-t-title').textContent = 'Nytt tilbud';
+  ['navn','tlf','epost','merke','modell','lengde','notat'].forEach(k => {
+    const el = document.getElementById('t-'+k); if (el) el.value = '';
+  });
+  document.getElementById('t-status').value = 'utkast';
+  // Set gyldig til = 30 days from now
+  const d = new Date(); d.setDate(d.getDate() + 30);
+  document.getElementById('t-gyldig').value = d.toISOString().slice(0,10);
+
+  // Pre-fill from forespørsel if given
+  if (fId) {
+    const f = get('obpk_f').find(x => x.id === fId);
+    if (f) {
+      document.getElementById('t-navn').value  = f.navn  || '';
+      document.getElementById('t-tlf').value   = f.tlf   || '';
+      document.getElementById('t-epost').value = f.epost || '';
+      document.getElementById('t-merke').value  = f.merke  || '';
+      document.getElementById('t-modell').value = f.modell || '';
+      document.getElementById('t-lengde').value = f.lengde || '';
+      document.getElementById('t-notat').value  = f.melding || '';
+    }
+  }
+
+  buildServicePicker(null);
+  calcTilbudTotal();
+  openModal('modal-tilbud');
+}
+
+function redigerTilbud(id) {
+  const t = get('obpk_t').find(x => x.id === id);
+  if (!t) return;
+  editingTId = id;
+  document.getElementById('modal-t-title').textContent = 'Rediger tilbud';
+  document.getElementById('t-navn').value   = t.navn   || '';
+  document.getElementById('t-tlf').value    = t.tlf    || '';
+  document.getElementById('t-epost').value  = t.epost  || '';
+  document.getElementById('t-merke').value  = t.merke  || '';
+  document.getElementById('t-modell').value = t.modell || '';
+  document.getElementById('t-lengde').value = t.lengde || '';
+  document.getElementById('t-notat').value  = t.notat  || '';
+  document.getElementById('t-status').value = t.status || 'utkast';
+  document.getElementById('t-gyldig').value = t.gyldig || '';
+  buildServicePicker(t.services || {});
+  calcTilbudTotal();
+  openModal('modal-tilbud');
+}
+
+function buildServicePicker(selected) {
+  const services = getServices();
+  const groups = [
+    { label:'Vårklargjøring – Polering under fenderlist', ids:['pol_under_1steg','pol_under_2steg','pol_under_premium'], type:'radio', name:'pol_under' },
+    { label:'Vårklargjøring – Polering over fenderlist',  ids:['pol_over_1steg','pol_over_2steg','pol_over_premium'],   type:'radio', name:'pol_over' },
+    { label:'Bunnstoff',     ids:['bunnstoff_skraping','bunnstoff_maling'], type:'checkbox' },
+    { label:'Båtvask',       ids:['vask_innvendig','vask_utvendig','vask_puter'], type:'checkbox' },
+    { label:'Vinterklargjøring', ids:['vinter_krympeplast','vinter_vask'], type:'checkbox' },
+  ];
+  const html = groups.map(g => `
+    <div class="service-pick">
+      <div class="sp-group-name">${g.label}</div>
+      ${g.ids.map(id => {
+        const svc = services.find(s => s.id === id);
+        if (!svc) return '';
+        const priceLabel = svc.unit === 'fot' ? svc.price+' kr/fot' : svc.unit === 'fra' ? 'fra '+fmt(svc.price) : 'Pris på forespørsel';
+        const checked = selected && (g.type === 'radio' ? selected[g.name] === id : selected[id]);
+        const inputAttr = g.type === 'radio'
+          ? `type="radio" name="${g.name}" value="${id}" data-id="${id}" ${checked?'checked':''}`
+          : `type="checkbox" id="sp-${id}" data-id="${id}" ${checked?'checked':''}`;
+        return `<label class="sp-opt"><input ${inputAttr} data-price="${svc.price}" data-unit="${svc.unit}">
+          <div class="sp-opt-row"><span class="sp-name">${svc.name.replace(/^.*?–\s*/,'')}</span><span class="sp-price-tag">${priceLabel}</span></div>
+        </label>`;
+      }).join('')}
+    </div>
+  `).join('');
+  document.getElementById('service-picker').innerHTML = html;
+  document.querySelectorAll('#service-picker input').forEach(el => el.addEventListener('change', calcTilbudTotal));
+  document.getElementById('t-lengde').addEventListener('input', calcTilbudTotal);
+}
+
+function calcTilbudTotal() {
+  const length = parseFloat(document.getElementById('t-lengde').value) || 0;
+  let total = 0, hasPerFotNoLen = false, hasFra = false, hasPoa = false;
+
+  document.querySelectorAll('#service-picker input:checked').forEach(inp => {
+    const price = parseFloat(inp.dataset.price);
+    const unit  = inp.dataset.unit;
+    if (unit === 'fot' && length > 0)  { total += price * length; }
+    else if (unit === 'fot')           { hasPerFotNoLen = true; }
+    else if (unit === 'fra')           { total += price; hasFra = true; }
+    else if (unit === 'poa')           { hasPoa = true; }
+  });
+
+  const el   = document.getElementById('t-total-display');
+  const note = document.getElementById('t-total-note');
+  if (hasPerFotNoLen && total === 0 && !hasFra) {
+    el.textContent = '—'; note.textContent = 'Fyll inn båtlengde for nøyaktig pris';
+  } else {
+    const pre = (hasFra || hasPoa || hasPerFotNoLen) ? 'fra ' : '';
+    el.textContent = total > 0 ? pre + fmt(total) : '—';
+    note.textContent = hasPoa ? '* Noen priser avklares ved befaring' : '';
+  }
+}
+
+function getTilbudServices() {
+  const result = {};
+  document.querySelectorAll('#service-picker input:checked').forEach(inp => {
+    if (inp.type === 'radio') result[inp.name] = inp.value;
+    else result[inp.dataset.id] = true;
+  });
+  return result;
+}
+
+function saveTilbud() {
+  const tilbud = {
+    id: editingTId || uid(),
+    dato: today(),
+    navn: document.getElementById('t-navn').value,
+    tlf: document.getElementById('t-tlf').value,
+    epost: document.getElementById('t-epost').value,
+    merke: document.getElementById('t-merke').value,
+    modell: document.getElementById('t-modell').value,
+    lengde: document.getElementById('t-lengde').value,
+    notat: document.getElementById('t-notat').value,
+    status: document.getElementById('t-status').value,
+    gyldig: document.getElementById('t-gyldig').value,
+    services: getTilbudServices(),
+    totalDisplay: document.getElementById('t-total-display').textContent,
+  };
+  const list = get('obpk_t');
+  if (editingTId) {
+    const idx = list.findIndex(x => x.id === editingTId);
+    if (idx >= 0) list[idx] = tilbud; else list.push(tilbud);
+  } else {
+    list.push(tilbud);
+  }
+  set('obpk_t', list);
+  closeModal('modal-tilbud');
+  renderTilbud();
+}
+
+function slettTilbud(id) {
+  if (!confirm('Slett dette tilbudet?')) return;
+  set('obpk_t', get('obpk_t').filter(x => x.id !== id));
+  renderTilbud();
+}
+
+/* ═══════════════════════════════════════════
+   PRINT / PDF
+═══════════════════════════════════════════ */
+function printTilbud() {
+  const services = getServices();
+  const navn   = document.getElementById('t-navn').value;
+  const epost  = document.getElementById('t-epost').value;
+  const tlf    = document.getElementById('t-tlf').value;
+  const merke  = document.getElementById('t-merke').value;
+  const modell = document.getElementById('t-modell').value;
+  const lengde = document.getElementById('t-lengde').value;
+  const gyldig = document.getElementById('t-gyldig').value;
+  const total  = document.getElementById('t-total-display').textContent;
+  const note   = document.getElementById('t-total-note').textContent;
+  const notat  = document.getElementById('t-notat').value;
+
+  const lines = [];
+  document.querySelectorAll('#service-picker input:checked').forEach(inp => {
+    const svc = services.find(s => s.id === inp.dataset.id || (inp.type==='radio' && s.id===inp.value));
+    if (!svc) return;
+    const len = parseFloat(lengde) || 0;
+    let amt = '';
+    if (svc.unit === 'fot' && len > 0) amt = fmt(svc.price * len);
+    else if (svc.unit === 'fot')       amt = svc.price + ' kr/fot';
+    else if (svc.unit === 'fra')       amt = 'fra ' + fmt(svc.price);
+    else                               amt = 'Pris på forespørsel';
+    lines.push({ name: svc.name, amt });
+  });
+
+  generatePrint({ navn, epost, tlf, merke, modell, lengde, gyldig, total, note, notat, lines });
+}
+
+function printTilbudById(id) {
+  const t = get('obpk_t').find(x => x.id === id);
+  if (!t) return;
+  redigerTilbud(id);
+  setTimeout(() => { printTilbud(); }, 150);
+}
+
+function generatePrint({ navn, epost, tlf, merke, modell, lengde, gyldig, total, note, notat, lines }) {
+  const rows = lines.map(l => `<tr><td>${l.name}</td><td style="text-align:right">${l.amt}</td></tr>`).join('');
+  document.getElementById('print-area').innerHTML = `
+    <div style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:32px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
+        <div>
+          <div style="font-size:1.2rem;font-weight:800;color:#0d0d0d">Oslo Båtpleie og Krympeplast AS</div>
+          <div style="font-size:0.8rem;color:#666;margin-top:4px">Dicks vei 12, Oslo &nbsp;|&nbsp; 974 02 543 &nbsp;|&nbsp; mathias@oslobåtpleie.no</div>
+        </div>
+        <div style="text-align:right;font-size:0.8rem;color:#999">
+          Tilbud &nbsp;|&nbsp; ${new Date().toLocaleDateString('nb-NO')}
+          ${gyldig ? '<br>Gyldig til: '+new Date(gyldig).toLocaleDateString('nb-NO') : ''}
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid #e0e0e0;margin-bottom:24px">
+      <div style="margin-bottom:24px">
+        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#999;margin-bottom:8px">Til</div>
+        <div style="font-size:0.95rem;font-weight:600">${navn||'—'}</div>
+        ${epost ? '<div style="font-size:0.85rem;color:#666">'+epost+'</div>' : ''}
+        ${tlf   ? '<div style="font-size:0.85rem;color:#666">'+tlf+'</div>'   : ''}
+        ${(merke||modell||lengde) ? `<div style="font-size:0.85rem;color:#666;margin-top:4px">Båt: ${[merke,modell,lengde?lengde+' fot':''].filter(Boolean).join(', ')}</div>` : ''}
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
+        <thead>
+          <tr style="border-bottom:2px solid #0d0d0d">
+            <th style="text-align:left;padding:6px 0;font-size:0.67rem;letter-spacing:0.07em;text-transform:uppercase;color:#999">Tjeneste</th>
+            <th style="text-align:right;padding:6px 0;font-size:0.67rem;letter-spacing:0.07em;text-transform:uppercase;color:#999">Pris</th>
+          </tr>
+        </thead>
+        <tbody>${rows || '<tr><td colspan="2" style="padding:12px 0;color:#999">Ingen tjenester valgt</td></tr>'}</tbody>
+      </table>
+      <div style="border-top:2px solid #0d0d0d;margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#999">Estimert total</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#0d0d0d">${total||'—'}</div>
+      </div>
+      ${note ? '<div style="font-size:0.72rem;color:#999;margin-top:4px;text-align:right">'+note+'</div>' : ''}
+      <div style="margin-top:8px;font-size:0.75rem;color:#999">Prisene er veiledende. Endelig pris bekreftes ved befaring.</div>
+      ${notat ? '<div style="margin-top:24px;padding:12px;background:#f8f8f8;border-radius:6px;font-size:0.8rem;color:#666"><strong>Notat:</strong> '+notat+'</div>' : ''}
+    </div>`;
+  document.getElementById('print-area').style.display = 'block';
+  window.print();
+  document.getElementById('print-area').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════ */
+function renderPriceSettings() {
+  const services = getServices();
+  document.getElementById('price-settings-table').innerHTML = `
+    <tr><th>Tjeneste</th><th>Enhet</th><th style="text-align:right">Pris</th></tr>
+    ${services.filter(s => s.unit !== 'poa').map(s => `
+      <tr>
+        <td>${s.name}</td>
+        <td style="color:var(--gray-400);font-size:0.78rem">${s.unit === 'fot' ? 'kr/fot' : 'kr (startpris)'}</td>
+        <td><input class="price-input" data-id="${s.id}" value="${s.price}"></td>
+      </tr>
+    `).join('')}
+  `;
+}
+
+function savePrices() {
+  const services = getServices();
+  document.querySelectorAll('.price-input').forEach(inp => {
+    const svc = services.find(s => s.id === inp.dataset.id);
+    if (svc) svc.price = parseFloat(inp.value) || 0;
+  });
+  localStorage.setItem('obpk_services', JSON.stringify(services));
+  const msg = document.getElementById('price-msg');
+  msg.textContent = 'Lagret.'; setTimeout(() => msg.textContent = '', 2500);
+}
+
+/* ═══════════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+function init() {
+  renderForesporsel();
+  renderTilbud();
+  renderPriceSettings();
+  // Pre-fill saved Netlify settings
+  const token  = localStorage.getItem('netlify_token');
+  const siteId = localStorage.getItem('netlify_siteid');
+  if (token)  document.getElementById('netlify-token').value  = token;
+  if (siteId) document.getElementById('netlify-siteid').value = siteId;
+}
+
+// Auto-login if session active
+if (checkAuth()) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  init();
+}
+</script>
+</body>
+</html>
