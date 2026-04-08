@@ -178,6 +178,8 @@
     .svc-group { margin-bottom: 18px; }
     .svc-group:last-child { margin-bottom: 0; }
     .svc-group-name { font-size: 0.82rem; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .svc-addon-divider { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--gray-400); margin: 8px 0 4px; padding-top: 8px; border-top: 1px dashed var(--gray-200); }
+    .svc-opt--addon { opacity: 0.85; }
 
     .svc-opt { display: flex; align-items: center; gap: 10px; padding: 6px 0; cursor: pointer; user-select: none; }
     .svc-opt input[type="checkbox"], .svc-opt input[type="radio"] { width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; accent-color: var(--black); }
@@ -409,27 +411,28 @@
           <div class="svc-group">
             <div class="svc-group-name">Polering under fenderlist</div>
             <label class="svc-opt">
-              <input type="radio" name="pol_under" value="1steg" data-price="75" data-unit="fot">
+              <input type="radio" name="pol_under" value="1steg" data-price="125" data-unit="fot">
               <div class="svc-opt-row">
                 <span class="svc-name">1-steg</span>
-                <span class="svc-price">75 kr/fot</span>
+                <span class="svc-price">125 kr/fot</span>
                 <span class="tip" tabindex="0">?<span class="tip-text">Anbefales til nyere båter med god glans. Enkeltbehandling som gjenoppretter glansnivået uten aggressiv sliping.</span></span>
               </div>
             </label>
             <label class="svc-opt">
-              <input type="radio" name="pol_under" value="2steg" data-price="115" data-unit="fot">
+              <input type="radio" name="pol_under" value="2steg" data-price="175" data-unit="fot">
               <div class="svc-opt-row">
                 <span class="svc-name">2-steg</span>
-                <span class="svc-price">115 kr/fot</span>
+                <span class="svc-price">175 kr/fot</span>
                 <span class="tip" tabindex="0">?<span class="tip-text">Anbefales til båter som er mer falmet eller eldre. To-stegsbehandling med cutting compound og finpolering for dypere glans.</span></span>
               </div>
             </label>
-            <label class="svc-opt">
-              <input type="radio" name="pol_under" value="premium" data-price="55" data-unit="fot">
+            <div class="svc-addon-divider">Tilvalg</div>
+            <label class="svc-opt svc-opt--addon">
+              <input type="checkbox" id="pol_under_premium" data-price="125" data-unit="fot">
               <div class="svc-opt-row">
                 <span class="svc-name">Premium voks</span>
-                <span class="svc-price">55 kr/fot</span>
-                <span class="tip" tabindex="0">?<span class="tip-text">Bevarer glansen gjennom hele sesongen. Gir UV-beskyttelse og gjør rengjøring enklere fremover.</span></span>
+                <span class="svc-price">125 kr/fot</span>
+                <span class="tip" tabindex="0">?<span class="tip-text">Bevarer glansen gjennom hele sesongen. Gir UV-beskyttelse og gjør rengjøring enklere fremover. Legges på i tillegg til polering.</span></span>
               </div>
             </label>
           </div>
@@ -438,27 +441,41 @@
           <div class="svc-group">
             <div class="svc-group-name">Polering over fenderlist</div>
             <label class="svc-opt">
-              <input type="radio" name="pol_over" value="1steg" data-price="95" data-unit="fot">
+              <input type="radio" name="pol_over" value="1steg" data-price="135" data-unit="fot">
               <div class="svc-opt-row">
                 <span class="svc-name">1-steg</span>
-                <span class="svc-price">95 kr/fot</span>
+                <span class="svc-price">135 kr/fot</span>
                 <span class="tip" tabindex="0">?<span class="tip-text">Anbefales til nyere båter. Polering av skrog og overbygning over vannlinjen – frisk og ren finish.</span></span>
               </div>
             </label>
             <label class="svc-opt">
-              <input type="radio" name="pol_over" value="2steg" data-price="145" data-unit="fot">
+              <input type="radio" name="pol_over" value="2steg" data-price="185" data-unit="fot">
               <div class="svc-opt-row">
                 <span class="svc-name">2-steg</span>
-                <span class="svc-price">145 kr/fot</span>
+                <span class="svc-price">185 kr/fot</span>
                 <span class="tip" tabindex="0">?<span class="tip-text">Anbefales til båter med oksidering eller falmede farger. To-steg som restaurerer det originale glansnivået.</span></span>
               </div>
             </label>
-            <label class="svc-opt">
-              <input type="radio" name="pol_over" value="premium" data-price="55" data-unit="fot">
+            <div class="svc-addon-divider">Tilvalg</div>
+            <label class="svc-opt svc-opt--addon">
+              <input type="checkbox" id="pol_over_premium" data-price="135" data-unit="fot">
               <div class="svc-opt-row">
                 <span class="svc-name">Premium voks</span>
-                <span class="svc-price">55 kr/fot</span>
+                <span class="svc-price">135 kr/fot</span>
                 <span class="tip" tabindex="0">?<span class="tip-text">Voksbelegg som beskytter mot UV og salt. Legges på som eget steg for maksimal beskyttelse av gelcoat.</span></span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Teak -->
+          <div class="svc-group">
+            <div class="svc-group-name">Teak</div>
+            <label class="svc-opt">
+              <input type="checkbox" id="teakrens" data-price="240" data-unit="fot">
+              <div class="svc-opt-row">
+                <span class="svc-name">Teakrens</span>
+                <span class="svc-price">240 kr/fot</span>
+                <span class="tip" tabindex="0">?<span class="tip-text">Profesjonell rens og behandling av teakdekk. Fjerner misfarging, grålighet og salt. Gjenoppretter treakets naturlige farge og beskytter mot fremtidig slitasje.</span></span>
               </div>
             </label>
           </div>
@@ -523,7 +540,7 @@
               <div class="svc-opt-row">
                 <span class="svc-name">Krympeplast</span>
                 <span class="svc-price">210 kr/fot</span>
-                <span class="tip" tabindex="0">?<span class="tip-text">Profesjonell shrink-wrap-innpakking. Beskytter mot vær, vind og UV gjennom vinteren. Inkluderer ventilasjon og demontering om våren.</span></span>
+                <span class="tip" tabindex="0">?<span class="tip-text">Profesjonell shrink-wrap-innpakking. Beskytter mot vær, vind og UV gjennom vinteren. Inkluderer ventilasjon.</span></span>
               </div>
             </label>
             <label class="svc-opt">
@@ -711,9 +728,44 @@
 </footer>
 
 <script>
+  /* ─── SYNC PRICES FROM ADMIN (shared localStorage) ─── */
+  function applyAdminPrices() {
+    let svcs;
+    try { svcs = JSON.parse(localStorage.getItem('obpk_svc')); } catch(e) {}
+    if (!svcs || !svcs.length) return;
+
+    // Map: admin service id → { selector fn, displayFn }
+    const map = [
+      { id:'pol_under_1steg',    el: () => document.querySelector('input[name="pol_under"][value="1steg"]'), label: p => p+' kr/fot' },
+      { id:'pol_under_2steg',    el: () => document.querySelector('input[name="pol_under"][value="2steg"]'), label: p => p+' kr/fot' },
+      { id:'pol_under_premium',  el: () => document.getElementById('pol_under_premium'),                     label: p => p+' kr/fot' },
+      { id:'pol_over_1steg',     el: () => document.querySelector('input[name="pol_over"][value="1steg"]'),  label: p => p+' kr/fot' },
+      { id:'pol_over_2steg',     el: () => document.querySelector('input[name="pol_over"][value="2steg"]'),  label: p => p+' kr/fot' },
+      { id:'pol_over_premium',   el: () => document.getElementById('pol_over_premium'),                      label: p => p+' kr/fot' },
+      { id:'teakrens',           el: () => document.getElementById('teakrens'),                              label: p => p+' kr/fot' },
+      { id:'bunnstoff_skrap',    el: () => document.getElementById('bunnstoff_skraping'),                    label: p => p+' kr/fot' },
+      { id:'bunnstoff_mal',      el: () => document.getElementById('bunnstoff_maling'),                      label: p => p+' kr/fot' },
+      { id:'vask_innv',          el: () => document.getElementById('vask_innvendig'),                        label: p => 'fra '+p.toLocaleString('nb-NO')+' kr' },
+      { id:'vask_utv',           el: () => document.getElementById('vask_utvendig'),                         label: p => 'fra '+p.toLocaleString('nb-NO')+' kr' },
+      { id:'vinter_krympe',      el: () => document.getElementById('vinter_krympeplast'),                    label: p => p+' kr/fot' },
+      { id:'vinter_vask',        el: () => document.getElementById('vinter_vask'),                           label: p => 'fra '+p.toLocaleString('nb-NO')+' kr' },
+    ];
+
+    map.forEach(({ id, el, label }) => {
+      const svc = svcs.find(s => s.id === id);
+      if (!svc) return;
+      const inp = el();
+      if (!inp) return;
+      inp.dataset.price = svc.price;
+      const priceSpan = inp.closest('.svc-opt')?.querySelector('.svc-price');
+      if (priceSpan) priceSpan.textContent = label(svc.price);
+    });
+  }
+  applyAdminPrices();
+
   /* ─── CALCULATOR LOGIC ─── */
   const RADIO_GROUPS = ['pol_under', 'pol_over'];
-  const CHECKBOX_IDS = ['bunnstoff_skraping','bunnstoff_maling','vask_innvendig','vask_utvendig','vask_puter','vinter_krympeplast','vinter_vask'];
+  const CHECKBOX_IDS = ['pol_under_premium','pol_over_premium','teakrens','bunnstoff_skraping','bunnstoff_maling','vask_innvendig','vask_utvendig','vask_puter','vinter_krympeplast','vinter_vask'];
 
   function fmt(n) { return n.toLocaleString('nb-NO') + ' kr'; }
 
