@@ -157,6 +157,17 @@
     .help-box a{color:var(--black);text-decoration:underline}
     .msg{font-size:.75rem;color:var(--g500);margin-left:10px}
 
+    /* DASHBOARD */
+    .dash-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+    .dash-card{background:var(--white);border:1px solid var(--g200);border-radius:10px;padding:16px 18px}
+    .dash-card-label{font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--g400);margin-bottom:5px}
+    .dash-card-val{font-size:1.4rem;font-weight:800;color:var(--black);letter-spacing:-.02em;line-height:1}
+    .dash-card-sub{font-size:.72rem;color:var(--g400);margin-top:4px}
+    .dash-card--accent{border-color:#bbf7d0;background:#f0fdf4}
+    .dash-card--accent .dash-card-label{color:#166534}
+    .dash-card--accent .dash-card-val{color:#166534}
+    @media(max-width:680px){.dash-row{grid-template-columns:1fr 1fr}}
+
     /* PRINT */
     @media print {
       body > *{visibility:hidden}
@@ -230,7 +241,8 @@
         <div><h1>Tilbud</h1><p>Opprettede tilbud til kunder</p></div>
         <button class="btn btn-primary" onclick="openNewT(null)">+ Nytt tilbud</button>
       </div>
-      <div class="tw"><table><thead><tr><th>Nr.</th><th>Dato</th><th>Kunde</th><th>Båt</th><th>Total</th><th>Status</th><th></th></tr></thead>
+      <div class="dash-row" id="dash-row"></div>
+      <div class="tw"><table><thead><tr><th>Nr.</th><th>Dato</th><th>Kunde</th><th>Båt</th><th>Total ekskl. MVA</th><th>Status</th><th></th></tr></thead>
         <tbody id="ttbody"></tbody></table></div>
     </div>
 
@@ -407,6 +419,21 @@
 </div>
 
 <script>
+/* ═══ LOGO PREFETCH ═══ */
+let logoDataUrl = '';
+async function fetchLogo() {
+  try {
+    const r = await fetch('../logo.svg');
+    if (!r.ok) return;
+    const blob = await r.blob();
+    logoDataUrl = await new Promise(res => {
+      const fr = new FileReader();
+      fr.onload = e => res(e.target.result);
+      fr.readAsDataURL(blob);
+    });
+  } catch(e) { logoDataUrl = ''; }
+}
+
 /* ═══ CONSTANTS ═══ */
 const DEFAULT_PASS = 'obpk2025';
 const DEFAULT_CI = { navn:'Oslo Båtpleie og Krympeplast AS', adresse:'Dicks vei 12, Oslo', tlf:'974 02 543', epost:'mathias@oslobåtpleie.no', orgnr:'', konto:'' };
@@ -572,6 +599,7 @@ let editTid=null, lineItems=[];
 
 function renderT(){
   const list=gd('obpk_t');
+  renderDashboard();
   const tb=g('ttbody');
   if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><p>Ingen tilbud ennå</p><button class="btn btn-primary" onclick="openNewT(null)">+ Nytt tilbud</button></div></td></tr>';return;}
   const s=[...list].sort((a,b)=>b.dato.localeCompare(a.dato));
@@ -588,6 +616,39 @@ function renderT(){
       <button class="btn btn-danger btn-sm" onclick="delT('${t.id}')">Slett</button>
     </td></tr>`).join('');
 }
+
+function renderDashboard(){
+  const list = gd('obpk_t');
+  const total    = list.reduce((s,t)=>s+rawTotal(t),0);
+  const akseptert= list.filter(t=>t.status==='akseptert');
+  const avslatt  = list.filter(t=>t.status==='avslatt');
+  const aktive   = list.filter(t=>t.status==='sendt'||t.status==='utkast');
+  const aksVal   = akseptert.reduce((s,t)=>s+rawTotal(t),0);
+  const aktVal   = aktive.reduce((s,t)=>s+rawTotal(t),0);
+  const fmt2     = n => n===0?'0 kr':n.toLocaleString('nb-NO')+' kr';
+  g('dash-row').innerHTML=`
+    <div class="dash-card">
+      <div class="dash-card-label">Totalt sendt</div>
+      <div class="dash-card-val">${list.length}</div>
+      <div class="dash-card-sub">${fmt2(total)} samlet verdi</div>
+    </div>
+    <div class="dash-card dash-card--accent">
+      <div class="dash-card-label">Akseptert</div>
+      <div class="dash-card-val">${akseptert.length}</div>
+      <div class="dash-card-sub">${fmt2(aksVal)} bekreftet</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-label">Under behandling</div>
+      <div class="dash-card-val">${aktive.length}</div>
+      <div class="dash-card-sub">${fmt2(aktVal)} utestående</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-label">Avslått</div>
+      <div class="dash-card-val">${avslatt.length}</div>
+      <div class="dash-card-sub">${fmt2(avslatt.reduce((s,t)=>s+rawTotal(t),0))} tapt</div>
+    </div>`;
+}
+function rawTotal(t){ return (t.lines||[]).reduce((s,li)=>s+(parseFloat(li.qty)||0)*(parseFloat(li.price)||0),0); }
 
 function openNewT(fid){
   editTid=null; lineItems=[];
@@ -711,6 +772,11 @@ function generatePDF(d){
   }).join('');
 
   const batInfo=[d.merke,d.modell,d.lengde?d.lengde+' fot':''].filter(Boolean).join(', ');
+  const mva = d.total * 0.25;
+  const totalInklMva = d.total + mva;
+  const logoImg = logoDataUrl
+    ? `<img src="${logoDataUrl}" alt="" style="height:54px;width:auto;display:block;margin-bottom:8px">`
+    : '';
 
   g('parea').innerHTML=`
   <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#0d0d0d;padding:32px 40px;max-width:700px;margin:0 auto">
@@ -719,8 +785,7 @@ function generatePDF(d){
     <table style="width:100%;border-collapse:collapse;margin-bottom:32px">
       <tr>
         <td style="vertical-align:top">
-          <img src="../logo.svg" alt="" style="height:54px;width:auto;display:block;margin-bottom:8px"
-               onerror="this.style.display='none'">
+          ${logoImg}
           <div style="font-size:15px;font-weight:700;color:#0d0d0d">${d.ci.navn}</div>
           <div style="font-size:12px;color:#666;margin-top:3px;line-height:1.7">
             ${d.ci.adresse}<br>
@@ -768,13 +833,27 @@ function generatePDF(d){
       <tbody>${rows||'<tr><td colspan="5" style="padding:16px 0;color:#999;font-size:13px">Ingen linjer</td></tr>'}</tbody>
     </table>
 
-    <!-- TOTAL -->
+    <!-- TOTAL MED MOMS -->
     <table style="width:100%;border-collapse:collapse;margin-top:4px">
       <tr>
-        <td style="border-top:1.5px solid #0d0d0d;padding-top:12px"></td>
-        <td style="border-top:1.5px solid #0d0d0d;padding-top:12px;text-align:right;white-space:nowrap">
-          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#666;margin-right:16px">Total ekskl. MVA</span>
-          <span style="font-size:20px;font-weight:800;color:#0d0d0d">${fmt(d.total)}</span>
+        <td style="border-top:1px solid #e0e0e0;padding-top:10px"></td>
+        <td style="border-top:1px solid #e0e0e0;padding-top:10px;text-align:right;white-space:nowrap">
+          <span style="font-size:11px;color:#999;margin-right:16px">Netto ekskl. MVA</span>
+          <span style="font-size:14px;font-weight:600;color:#444">${fmt(d.total)}</span>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td style="padding-top:5px;text-align:right;white-space:nowrap">
+          <span style="font-size:11px;color:#999;margin-right:16px">MVA 25 %</span>
+          <span style="font-size:14px;font-weight:600;color:#444">${fmt(mva)}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-top:1.5px solid #0d0d0d;padding-top:10px"></td>
+        <td style="border-top:1.5px solid #0d0d0d;padding-top:10px;text-align:right;white-space:nowrap">
+          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#666;margin-right:16px">Totalt inkl. MVA</span>
+          <span style="font-size:22px;font-weight:800;color:#0d0d0d">${fmt(totalInklMva)}</span>
         </td>
       </tr>
     </table>
@@ -828,6 +907,7 @@ document.querySelectorAll('.mbg').forEach(bg=>bg.addEventListener('click',e=>{if
 
 /* ═══ INIT ═══ */
 function init(){
+  fetchLogo();
   renderF();renderT();renderPT();
   const ci=getCi();
   g('ci-navn').value=ci.navn; g('ci-adresse').value=ci.adresse;
